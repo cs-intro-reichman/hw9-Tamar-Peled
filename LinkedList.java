@@ -54,9 +54,15 @@ public class LinkedList {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		//// Replace the following statement with your code
-		return null;
-	}
+		Node current = this.first;
+		for (int i = 0; i < index; i++){
+			current = current.next;
+			
+		}
+
+		return current;
+		}
+	
 	
 	/**
 	 * Creates a new Node object that points to the given memory block, 
@@ -78,7 +84,37 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
-		//// Write your code here
+	
+		Node newNode = new Node(block);
+		if (index == 0){
+			newNode.next = this.first;
+			this.first = newNode;
+		
+			if (last == null) {
+			last = newNode;
+			
+			}
+		}
+		else if (index == size) {
+			if (this.last != null) {
+				this.last.next = newNode;
+
+			}
+			
+			this.last = newNode;
+			
+		}
+		else{
+			Node currentInTheIndex = getNode(index);
+			Node prevFromIndex = getNode(index - 1);
+			newNode.next = currentInTheIndex;
+			prevFromIndex.next = newNode;
+			
+
+		}
+		size++;		
+
+
 	}
 
 	/**
@@ -89,7 +125,8 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addLast(MemoryBlock block) {
-		//// Write your code here
+		add(size, block);
+		
 	}
 	
 	/**
@@ -100,7 +137,7 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addFirst(MemoryBlock block) {
-		//// Write your code here
+		add(0, block);
 	}
 
 	/**
@@ -113,8 +150,12 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-		//// Replace the following statement with your code
-		return null;
+		if (index < 0 || index >= size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		
+		return getNode(index).block;
 	}	
 
 	/**
@@ -125,8 +166,22 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		//// Replace the following statement with your code
-		return -1;
+		int index = -1;
+
+		if (this.first == null){
+			return index;
+		}
+
+		for(int i = 0; i < size; i++){
+			MemoryBlock currentBlock = getBlock(i);
+			if (currentBlock.equals(block)) {
+				index = i;
+				return index;
+			}
+			
+
+		}
+		return index;
 	}
 
 	/**
@@ -136,8 +191,41 @@ public class LinkedList {
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
-		//// Write your code here
-	}
+		
+		if (node == null || this.first == null) {
+			throw new NullPointerException("Cannot remove a null node");
+				
+		}
+		if (this.first == node) {
+			this.first = this.first.next; 
+			if (this.first == null) { 
+				this.last = null; 
+			}
+			size--; 
+			return;
+		}
+
+		//int indexOfGivenNode = indexOf(node.block);
+		Node prev = null;
+		Node current = this.first;
+
+		while (current != null) {
+			if (current == node) {
+				prev.next = current.next;
+			
+				if (current.next == null) {
+					this.last = prev;	
+				}
+				size--;
+				return;
+		}
+			prev = current;
+			current = current.next;
+				
+			}
+
+		}
+
 
 	/**
 	 * Removes from this list the node which is located at the given index.
@@ -148,6 +236,7 @@ public class LinkedList {
 	 */
 	public void remove(int index) {
 		//// Write your code here
+		remove(getNode(index));
 	}
 
 	/**
@@ -158,7 +247,7 @@ public class LinkedList {
 	 *         if the given memory block is not in this list
 	 */
 	public void remove(MemoryBlock block) {
-		//// Write your code here
+		remove(indexOf(block));
 	}	
 
 	/**
@@ -172,7 +261,13 @@ public class LinkedList {
 	 * A textual representation of this list, for debugging.
 	 */
 	public String toString() {
-		//// Replace the following statement with your code
-		return "";
+		String theList = "";
+		Node current = this.first;
+		while (current != null) {
+			theList += current.block + " ";
+			current = current.next;
+			
+		}		
+		return theList;
 	}
 }

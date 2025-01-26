@@ -1,3 +1,5 @@
+import java.util.List;
+
 /**
  * Represents a managed memory space. The memory space manages a list of allocated 
  * memory blocks, and a list free memory blocks. The methods "malloc" and "free" are 
@@ -57,8 +59,40 @@ public class MemorySpace {
 	 *        the length (in words) of the memory block that has to be allocated
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
-	public int malloc(int length) {		
-		//// Replace the following statement with your code
+	public int malloc(int length) {	
+		if (freeList.getSize() == 0) {
+			return -1;			
+		}	
+		for(int i = 0; i < freeList.getSize(); i++){
+			MemoryBlock freeBlock =  freeList.getBlock(i);
+			//int originalBaseAddress = freeBlock.baseAddress;
+			
+			if (freeBlock.length == length) {
+				//MemoryBlock finalFoundedBlock = new MemoryBlock(originalBaseAddress, length);
+				freeList.remove(freeBlock);
+				allocatedList.addLast(freeBlock);
+				return freeBlock.baseAddress;
+				
+			}
+			else if (length < freeBlock.length) {
+				MemoryBlock newAllocatedBlock = new MemoryBlock(freeBlock.baseAddress, length);
+				allocatedList.addLast(newAllocatedBlock);
+				freeBlock.length -= length;
+				freeBlock.baseAddress+= length;
+				
+				//MemoryBlock newFreeBlock = new MemoryBlock(originalBaseAddress, freeBlock.length);
+				//int blocksIndex = freeList.indexOf(freeBlock);
+				//freeList.remove(freeBlock);
+				//freeList.add(blocksIndex, newFreeBlock);  
+				
+				
+				
+				return newAllocatedBlock.baseAddress;
+				
+			}
+		
+			
+		}
 		return -1;
 	}
 
@@ -71,7 +105,28 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		if (allocatedList.getSize() == 0 ) {
+			throw new IllegalArgumentException("index must be between 0 and size");
+		}
+		
+		//Node recycle = allocatedList.getNode(0);
+		//while (recycle != null) {
+			//if (recycle.block.baseAddress == address) {
+				//allocatedList.remove(recycle.block);
+				//freeList.addLast(recycle.block);
+				//return;
+			//}	
+			//recycle = recycle.next;
+		//}
+		for(int i = 0; i < allocatedList.getSize(); i++){
+			MemoryBlock recycleBlock = allocatedList.getBlock(i);
+			if (recycleBlock.baseAddress == address) {
+				allocatedList.remove(recycleBlock);
+				freeList.addLast(recycleBlock);
+				
+			}
+		}
+		
 	}
 	
 	/**
@@ -88,6 +143,51 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		//// Write your code here
+		if (freeList.getSize() == 0) {
+			return;
+		}
+
+		sortFreeList();
+
+		int i = 0;
+		while (i < freeList.getSize() -1 ) {
+			MemoryBlock currentBlock = freeList.getBlock(i);
+			MemoryBlock nextBlock = freeList.getBlock(i + 1);
+				
+				if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress ) {
+						currentBlock.length += nextBlock.length;
+						freeList.remove(nextBlock);
+				} else{
+				i++;
+			}
+
+			
+		}
+	
+		
 	}
+	
+
+
+	public void sortFreeList() {
+		int n = freeList.getSize();
+		for (int i = 0; i < n - 1; i++) {
+			for (int j = 0; j < n - i - 1; j++) {
+			MemoryBlock currentBlock = freeList.getBlock(j);
+			MemoryBlock nextBlock = freeList.getBlock(j + 1);
+
+			
+			if (currentBlock.baseAddress > nextBlock.baseAddress) {
+				
+				freeList.remove(currentBlock);
+                freeList.remove(nextBlock);
+
+                freeList.add(j, nextBlock);
+                freeList.add(j + 1, currentBlock);
+			}
+		}
+	}
+}	
+
+
 }
